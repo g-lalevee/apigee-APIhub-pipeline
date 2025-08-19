@@ -61,6 +61,7 @@ jobs:
       - name: Get the access token
         run: |
           echo "GCP_TOKEN=${{ steps.auth.outputs.access_token }}" >> $GITHUB_ENV
+          echo ${{ steps.auth.outputs.access_token }}
 
 
   # Generate apiData payload then upsert to API hub plugin 
