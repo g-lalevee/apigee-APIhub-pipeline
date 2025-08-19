@@ -23,7 +23,6 @@ env:
   APIGEE_GOOGLE_TOKEN_EMAIL: ${{ secrets.APIGEE_GOOGLE_TOKEN_EMAIL }}
   COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
 
-
 jobs:
 
 # JOB 0 ------------------------------------------------------------------------
