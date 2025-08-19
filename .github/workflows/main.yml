@@ -43,15 +43,6 @@ jobs:
           token: ${{ secrets.CHECKOUT_PAT }}
 
 
-  # Generate SA key file from secret variable
-      - name: Generate SA key file
-        run: 
-          pwd
-          echo "go go"
-          ls
-          echo $GCP_SERVICE_ACCOUNT >  sa.json
-
-
   # Install apigee-go-gen
       - name: Install apigee-go-gen
         shell: bash
@@ -61,12 +52,33 @@ jobs:
           curl -s https://apigee.github.io/apigee-go-gen/install | bash
 
 
-  # Update files
+      - name: Authenticate to Google Cloud
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: '${{ secrets.GCP_SERVICE_ACCOUNT }}'
+
+      - name: Get the access token
+        run: |
+          echo "GCP_TOKEN=${{ steps.auth.outputs.access_token }}" >> $GITHUB_ENV
+
+
+  # Generate apiData payload then upsert to API hub plugin 
       - name: Build API hub plugin payload
         run: |
           chmod +x ./my-script/build-apiData.sh
-          ./my-script/build-apiData.sh
 
-          cat output.txt
+          set -a
+          source .env
+          set +a
+
+          . ./my-script/build-apiData.sh
+
+          cat apiData.json
+
+          curl --location 'https://apihub.googleapis.com/v1/projects/$apigee_org/locations/$apihub_region:collectApiData' \
+          --header 'Content-Type: application/json' \
+          --header "Authorization: Bearer $GCP_TOKEN" \
+          --data-binary "@apiData.json"
 
 
