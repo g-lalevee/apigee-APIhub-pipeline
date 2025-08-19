@@ -47,8 +47,9 @@ jobs:
       - name: Generate SA key file
         run: 
           pwd
+          echo "go go"
           ls
-          echo $GCP_SERVICE_ACCOUNT >  apihub/sa.json
+          echo $GCP_SERVICE_ACCOUNT >  sa.json
 
 
   # Install apigee-go-gen
