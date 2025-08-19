@@ -57,6 +57,7 @@ jobs:
         uses: google-github-actions/auth@v2
         with:
           credentials_json: '${{ secrets.GCP_SERVICE_ACCOUNT }}'
+          token_format: "access_token"
 
       - name: Get the access token
         run: |
