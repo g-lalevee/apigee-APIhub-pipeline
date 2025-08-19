@@ -1,0 +1,67 @@
+{
+    "location": "projects/$X_PROJECT/locations/$X_REGION",
+    "collection_type": "COLLECTION_TYPE_UPSERT",
+    "plugin_instance": "projects/$X_PROJECT/locations/$X_REGION/plugins/$X_PLUGIN_NAME/instances/$X_INSTANCE_ID",
+    "action_id": "sync-action",
+    "api_data": {
+        "api_metadata_list": {
+            "api_metadata": [
+                {
+                    "api": {
+                        "display_name": "$X_API_DISPLAY_NAME",
+                        "description": "$X_API_DESCRIPTION",
+                        "fingerprint": "$X_ORIGINAL_ID",
+                        "owner": {
+                            "displayName": "$X_API_OWNER_NAME",
+                            "email": "$X_API_OWNER_EMAIL"
+                        }
+                    },
+                    "original_id": "$X_ORIGINAL_ID",
+                    "versions": [
+                        {
+                            "version": {
+                                "display_name": "$X_API_VERSION",
+                                "lifecycle": {
+                                    "enum_values": {
+                                        "values": [
+                                            {
+                                                "id": "$X_LIFECYCLE"
+                                            }
+                                        ]
+                                    }
+                                }
+                            },
+                            "original_id": "$X_API_VERSION",
+                            "specs": [
+                                {
+                                    "spec": {
+                                        "displayName": "$X_SPEC_FILE_NAME",
+                                        "specType": {
+                                            "enumValues": {
+                                                "values": [
+                                                    {
+                                                        "id": "openapi"
+                                                    }
+                                                ]
+                                            }
+                                        },
+                                        "contents": {
+                                            "contents": "$X_CONTENT_B64",
+                                            "mimeType": "application/yaml"
+                                        }
+                                    },
+                                    "originalUpdateTime": "$X_ORIGINAL_UPDATE_TIME"
+                                }
+                            ],
+                            "deployments": [],
+                            "original_create_time": "$X_ORIGINAL_CREATE_TIME",
+                            "original_update_time": "$X_ORIGINAL_UPDATE_TIME"
+                        }
+                    ],
+                    "original_create_time": "$X_ORIGINAL_CREATE_TIME",
+                    "original_update_time": "$X_ORIGINAL_UPDATE_TIME"
+                }
+            ]
+        }
+    }
+}

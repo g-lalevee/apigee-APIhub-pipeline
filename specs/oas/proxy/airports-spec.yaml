@@ -1,11 +1,12 @@
 openapi: 3.0.0
 info:
   description: Get Airports list and details
-  version: 1.0.0-oas3
+  version: 1.0.0
   title: airports-cicd
   contact:
-    name: Apigee Devrel
-    url: https://github.com/apigee/devrel
+    name: C. Lalevée
+    url: https://github.com/g-lalevee
+    email: lalevee@google.com
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
