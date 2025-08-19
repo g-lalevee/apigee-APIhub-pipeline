@@ -79,6 +79,6 @@ jobs:
 
           #cat apiData.json
       
-          curl -v --location "https://apihub.googleapis.com/v1/projects/$apigee_org/locations/$apihub_region:collectApiData" --header 'Content-Type: application/json'  --header "Authorization: Bearer $GCP_TOKEN"  --data-binary "@apiData.json"
+          curl --location "https://apihub.googleapis.com/v1/projects/$apigee_org/locations/$apihub_region:collectApiData" --header 'Content-Type: application/json'  --header "Authorization: Bearer $GCP_TOKEN"  --data-binary "@apiData.json"
 
 
