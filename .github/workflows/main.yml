@@ -33,13 +33,13 @@ jobs:
   
     steps:
       - name: Checkout main repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Checkout script repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: g-lalevee/APIhub-apiData-builder
-          path: .
+          path: my-script
           token: ${{ secrets.CHECKOUT_PAT }}
 
 
@@ -64,8 +64,8 @@ jobs:
   # Update files
       - name: Build API hub plugin payload
         run: |
-          chmod +x ./build-apiData.sh
-          ./build-apiData.sh
+          chmod +x ./my-script/build-apiData.sh
+          ./my-script/build-apiData.sh
 
           cat output.txt
 
