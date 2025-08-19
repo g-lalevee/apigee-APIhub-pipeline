@@ -67,7 +67,7 @@ jobs:
 
 
   # Generate apiData payload then upsert to API hub plugin 
-      - name: Build API hub plugin payload
+      - name: Build API hub plugin payload then upsert to API hub 
         run: |
           chmod +x ./my-script/build-apiData.sh
 
@@ -78,9 +78,7 @@ jobs:
           . ./my-script/build-apiData.sh
 
           #cat apiData.json
-
-          echo "curl --location https://apihub.googleapis.com/v1/projects/$apigee_org/locations/$apihub_region:collectApiData  --header Content-Type: application/json  --header Authorization: Bearer $GCP_TOKEN  --data-binary @apiData.json "
       
-          curl -v --location 'https://apihub.googleapis.com/v1/projects/$apigee_org/locations/$apihub_region:collectApiData' --header 'Content-Type: application/json'  --header "Authorization: Bearer $GCP_TOKEN"  --data-binary "@apiData.json"
+          curl -v --location "https://apihub.googleapis.com/v1/projects/$apigee_org/locations/$apihub_region:collectApiData" --header 'Content-Type: application/json'  --header "Authorization: Bearer $GCP_TOKEN"  --data-binary "@apiData.json"
 
 
