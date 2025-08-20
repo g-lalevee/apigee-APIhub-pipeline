@@ -85,6 +85,7 @@ jobs:
 # JOB 1  ------------------------------------------------------------------------
 
   generate-apigee-proxy:
+    needs: [initial-publish-to-apihub]
     if: "!contains(github.event.head_commit.message, '[skip ci]') && github.run_number != 1"
 
     runs-on: ubuntu-latest
@@ -149,7 +150,7 @@ jobs:
         with:
           name: apiproxy
           path:  ./apiproxy
-          retention-days: 5
+          retention-days: 15
 
 # JOB 2 ------------------------------------------------------------------------
 
@@ -236,7 +237,7 @@ jobs:
         with:
           name: spectral-report
           path:  ./spectral-report.html
-          retention-days: 5
+          retention-days: 15
 
   # Run apigeeLint test + upload artifact (apigeelint-out.html)
       - name: Run Apigeelint
@@ -247,7 +248,7 @@ jobs:
         with:
           name: apigeelint-report
           path: ./apigeelint-out.html
-          retention-days: 5
+          retention-days: 15
 
   # Setup Maven & Maven Cache
       - name: Set up JDK 1.8
@@ -294,7 +295,7 @@ jobs:
         with:
           name: apickli-report
           path: ./cucumber_report.html
-          retention-days: 5
+          retention-days: 15
 
       # Builds project when is PR to the `main` branch
       - name: Commit Proxy code into GitHub repo
@@ -308,8 +309,63 @@ jobs:
             git push --no-verify            
           fi
 
-
 # JOB 3 ------------------------------------------------------------------------
+
+  AAS-risk-assesment:
+    needs: [deploy-apigee-proxy]
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+    runs-on: ubuntu-latest
+  
+    steps:
+      - uses: actions/checkout@v4   
+
+   # Install apigeecli (required to generate GCP Token from SA JSON key file)
+      - name: Install Apigeecli
+        run: curl -L https://raw.githubusercontent.com/apigee/apigeecli/main/downloadLatest.sh | sh -
+
+    # Generate SA key file from secret variable
+      - name: Run AAS Security Assessment
+        run: |
+          # retrieve / set variables
+          set -a
+          source .env
+          set +a
+          export proxy_name="$proxy_name$APIGEE_DEPLOYMENT_SUFFIX"
+          echo "proxy_name=$proxy_name"
+
+          echo $GCP_SERVICE_ACCOUNT >  sa.json
+          export GCP_TOKEN=$(/home/runner/.apigeecli/bin/apigeecli token gen -a sa.json)
+
+          # call Apigee securityAssessmentResults.batchCompute API to assess risk for the deployed proxy
+          curl  -X POST  -H "Content-Type:application/json" -H "Authorization:Bearer $GCP_TOKEN" \
+            -d "{
+                  \"profile\": \"google-default\",
+                  \"scope\": \"$apigee_env\",
+                  \"include\": {
+                      \"resources\": [
+                        {
+                          \"type\": \"API_PROXY\",
+                          \"name\": \"$proxy_name\"
+                        }
+                      ]
+                    }
+                  }" \
+          "https://apigee.googleapis.com/v1/organizations/$apigee_org/securityAssessmentResults:batchCompute" \
+          -o assessment_results.json
+
+          # Create assessment from AAS results in JSON file and template
+          export JS_CODE="jsonData = $(cat assessment_results.json)"
+          envsubst < ./test/AAS/assessment_results_template.html > AAS_assessment_results.html
+
+
+      - name: Archive Artifact AAS results
+        uses: actions/upload-artifact@v4
+        with:
+          name: AAS-report
+          path: ./AAS_assessment_results.html
+          retention-days: 15
+
+# JOB 4 ------------------------------------------------------------------------
 
   publish-to-integrated-portal:
     needs: [AAS-risk-assesment]
@@ -344,4 +400,4 @@ jobs:
 
           echo "mvn install -q -Ptest -Dorg=$apigee_org -DsiteId=bap-emea-apigee-5-cltest -Dapigee.config.options=update -Dapigee.config.dir=. -Dfile=sa.json"
           mvn -q install -Ptest -Dorg=$apigee_org -DsiteId=$portal_site_id -Dapigee.config.options=update -Dapigee.config.dir=. -Dfile=sa.json
-          
+
