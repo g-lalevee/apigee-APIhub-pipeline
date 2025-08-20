@@ -90,6 +90,9 @@ jobs:
     if: "!contains(github.event.head_commit.message, '[skip ci]') && github.run_number != 1"
 
     runs-on: ubuntu-latest
+    
+    environment: non-prod
+
     outputs:
       api_url: ${{ steps.generate_apigee_proxy.outputs.api_url }}
       proxy_name: ${{ steps.generate_apigee_proxy.outputs.proxy_name }}
