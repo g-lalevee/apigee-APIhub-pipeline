@@ -102,7 +102,6 @@ jobs:
         shell: bash
         run: |
           # bash install-apigee-go-gen 
-          # change it to apigee-go-gen when issue fixed !!!!
           curl -s https://apigee.github.io/apigee-go-gen/install | bash
 
 
@@ -272,7 +271,7 @@ jobs:
 
   # Package & Deploy Apigee proxy (Apigee [Deploy] Maven plugin)
       - name: mvn package
-        run: mvn process-resources -Pgoogleapi -Dcommit=$GIT_COMMIT -Dauthor=$AUTHOR_EMAIL -Ddeployment.suffix=$APIGEE_DEPLOYMENT_SUFFIX
+        run: mvn  process-resources -q -Pgoogleapi -Dcommit=$GIT_COMMIT -Dauthor=$AUTHOR_EMAIL -Ddeployment.suffix=$APIGEE_DEPLOYMENT_SUFFIX
 
       - name: mvn deploy proxy xhybrid
         run: |
