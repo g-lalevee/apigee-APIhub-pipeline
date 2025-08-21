@@ -1,5 +1,5 @@
 
-name: Apigee OAS-First pipeline
+name: Apigee GitHub Action pipeline with API hub
 
 on: push
 
@@ -27,7 +27,7 @@ jobs:
 
 # JOB 0 ------------------------------------------------------------------------
 
-  initial-publish-to-apihub:
+  publish-API--to-apihub:
     #if: "contains(github.event.head_commit.message, '[api-hub]')"
     if: "!contains(github.event.head_commit.message, '[skip ci]') && github.run_number != 1"
     runs-on: ubuntu-latest
