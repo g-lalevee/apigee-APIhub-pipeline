@@ -36,7 +36,7 @@ jobs:
       - name: Checkout main repository
         uses: actions/checkout@v5
 
-      - name: Checkout script repository
+      - name: Checkout apiData Builder script repository
         uses: actions/checkout@v5
         with:
           repository: g-lalevee/APIhub-apiData-builder
@@ -44,15 +44,15 @@ jobs:
           token: ${{ secrets.CHECKOUT_PAT }}
 
 
-  # Install apigee-go-gen
+  # Install apigee-go-gen (YAML to JSON transformer)
       - name: Install apigee-go-gen
         shell: bash
         run: |
           # bash install-apigee-go-gen 
-          # change it to apigee-go-gen when issue fixed !!!!
           curl -s https://apigee.github.io/apigee-go-gen/install | bash
 
 
+  # Generate Google Cloud oAuth Token from GCP Serveice Account (Github secret)
       - name: Authenticate to Google Cloud
         id: auth
         uses: google-github-actions/auth@v2
@@ -66,21 +66,28 @@ jobs:
           echo ${{ steps.auth.outputs.access_token }}
 
 
-
-
   # Generate apiData payload then upsert to API hub plugin 
       - name: Build API hub plugin payload then upsert to API hub 
         run: |
-          chmod +x ./my-script/build-apiData.sh
-
           set -a
           source .env
           set +a
 
-          . ./my-script/build-apiData.sh
+          # Input env. variables required to build payload:
+          # from .env file: $proxy_name, $apigee_deployment_suffix, $apihub_region
+          #                 $apihub_plugin_name, $apihub_instance_id
+          #                 $apihub_apiData_template
+          # additional variables...
+          
+          export lifecyle="design"
+          export oas_folder_path="./specs/oas/proxy"
 
-          #cat apiData.json
+          # Output: file apiData.json
+           
+          chmod +x ./my-script/build-apiData.sh
+          . ./my-script/build-apiData.sh
       
+          # call API hub plugin instance
           curl --location "https://apihub.googleapis.com/v1/projects/$apigee_org/locations/$apihub_region:collectApiData" --header 'Content-Type: application/json'  --header "Authorization: Bearer $GCP_TOKEN"  --data-binary "@apiData.json"
 
 
@@ -129,8 +136,8 @@ jobs:
             fi
           else
             echo "INFO ---------- Generate Apigee Proxy"
-            apigee-go-gen render apiproxy --template ./templates/oas/apiproxy.yaml \
-            --include ./templates/oas/*.tmpl \
+            apigee-go-gen render apiproxy --template ./templates/apigee-go-gen/oas/apiproxy.yaml \
+            --include ./templates/apigee-go-gen/oas/*.tmpl \
             --set target_server_url=$new_url \
             --set-oas spec=./specs/oas/proxy/airports-spec.yaml \
             --output ./
