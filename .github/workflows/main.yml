@@ -63,7 +63,6 @@ jobs:
       - name: Get the access token
         run: |
           echo "GCP_TOKEN=${{ steps.auth.outputs.access_token }}" >> $GITHUB_ENV
-          echo ${{ steps.auth.outputs.access_token }}
 
 
   # Generate apiData payload then upsert to API hub plugin 
@@ -106,7 +105,8 @@ jobs:
       proxy_name: ${{ steps.generate_apigee_proxy.outputs.proxy_name }}
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout main repository
+        uses: actions/checkout@v5
       
       # Install apigee-go-gen
       - name: Install apigee-go-gen
@@ -176,12 +176,12 @@ jobs:
       api_url: ${{ needs.generate-apigee-proxy.outputs.api_url }} 
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
 
       # Download Apigee proxy folder from JOB 1
       - name: Download Proxy code
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: apiproxy
           path: apiproxy
@@ -331,13 +331,21 @@ jobs:
     runs-on: ubuntu-latest
   
     steps:
-      - uses: actions/checkout@v4   
+      - name: Checkout main repository
+        uses: actions/checkout@v5
 
-   # Install apigeecli (required to generate GCP Token from SA JSON key file)
-      - name: Install Apigeecli
-        run: curl -L https://raw.githubusercontent.com/apigee/apigeecli/main/downloadLatest.sh | sh -
+      # Generate Google Cloud oAuth Token from GCP Service Account (Github secret)
+      - name: Authenticate to Google Cloud
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: '${{ secrets.GCP_SERVICE_ACCOUNT }}'
+          token_format: "access_token"
 
-    # Generate SA key file from secret variable
+      - name: Get the access token
+        run: |
+          echo "GCP_TOKEN=${{ steps.auth.outputs.access_token }}" >> $GITHUB_ENV
+
       - name: Run AAS Security Assessment
         run: |
           # retrieve / set variables
@@ -346,9 +354,6 @@ jobs:
           set +a
           export proxy_name="$proxy_name$APIGEE_DEPLOYMENT_SUFFIX"
           echo "proxy_name=$proxy_name"
-
-          echo $GCP_SERVICE_ACCOUNT >  sa.json
-          export GCP_TOKEN=$(/home/runner/.apigeecli/bin/apigeecli token gen -a sa.json)
 
           # call Apigee securityAssessmentResults.batchCompute API to assess risk for the deployed proxy
           curl  -X POST  -H "Content-Type:application/json" -H "Authorization:Bearer $GCP_TOKEN" \
@@ -387,7 +392,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4   
+      - uses: actions/checkout@v5   
 
         # Generate SA key file from secret variable
       - name: Generate SA key file
