@@ -85,6 +85,7 @@ jobs:
            
           chmod +x ./my-script/build-apiData.sh
           . ./my-script/build-apiData.sh
+          
       
           # call API hub plugin instance
           curl --location "https://apihub.googleapis.com/v1/projects/$apigee_org/locations/$apihub_region:collectApiData" --header 'Content-Type: application/json'  --header "Authorization: Bearer $GCP_TOKEN"  --data-binary "@apiData.json"
