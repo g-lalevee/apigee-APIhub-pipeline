@@ -308,7 +308,7 @@ jobs:
           node ./test/integration/index.js
 
       - name: Archive Artifact Apickli results
-        uses: actions/upload-artifact@vè
+        uses: actions/upload-artifact@v7
         with:
           name: apickli-report
           path: ./cucumber_report.html
